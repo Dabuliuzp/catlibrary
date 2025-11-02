@@ -1,5 +1,6 @@
 package com.example.virtual_campus.ServerPages;
 
+import com.example.virtual_campus.Utils.JWTUtils;
 import com.example.virtual_campus.controller.AuthController;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -32,7 +33,12 @@ public class LoginPage {
                     out.writeObject(LoginConfirm);
                     if(LoginConfirm>1) {
                         Long currentUserId = authController.getUserId(userId);
+                        // 生成JWT令牌
+                        String token = JWTUtils.generateToken(userId, currentUserId, LoginConfirm);
+                        System.out.println("生成的JWT令牌: " + token);
+                        // 发送用户ID和JWT令牌
                         out.writeObject(currentUserId);
+                        out.writeObject(token);
                     }
                     out.flush();
                     break;
