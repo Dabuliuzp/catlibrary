@@ -111,6 +111,30 @@ public class Server{
                     break;
                 }
                 String function = (String) in.readObject();
+                
+                // JWT验证 - 跳过登录请求的验证
+                if (!model.equals("1") || !function.equals("login")) {
+                    // 读取JWT令牌
+                    String token = (String) in.readObject();
+                    
+                    // 验证JWT令牌
+                    if (!com.example.virtual_campus.Utils.JWTUtils.validateToken(token)) {
+                        System.out.println("JWT验证失败，拒绝请求");
+                        out.writeObject("error");
+                        out.writeObject("令牌无效或已过期");
+                        out.flush();
+                        continue;
+                    }
+                    
+                    // 令牌验证成功，可以从令牌中获取用户信息
+                    String username = com.example.virtual_campus.Utils.JWTUtils.getUsernameFromToken(token);
+                    Long userId = com.example.virtual_campus.Utils.JWTUtils.getUserIdFromToken(token);
+                    Integer userType = com.example.virtual_campus.Utils.JWTUtils.getUserTypeFromToken(token);
+                    
+                    System.out.println("JWT验证成功，用户：" + username + ", 用户类型：" + userType);
+                    // 这里可以将用户信息存储在ThreadLocal或请求上下文中，供后续处理使用
+                }
+                
                 System.out.println("读入第一段指向："+model);
                 switch (model) {
                     case "1":
